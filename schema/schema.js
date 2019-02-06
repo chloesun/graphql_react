@@ -1,5 +1,6 @@
 const graphql = require('graphql');
 const _ = require('lodash');
+const axios = require ('axios');
 //graphqlschema takes a root query and returns a graphql schema instance
 const {
     GraphQLObjectType,
@@ -9,10 +10,10 @@ const {
 } = graphql;
 
 //hard coded users
-const users = [
-    { id: '23', firstName: 'Bill' , age: 20},
-    { id: '47', firstName: 'Sam' , age: 21}
-];
+// const users = [
+//     { id: '23', firstName: 'Bill' , age: 20},
+//     { id: '47', firstName: 'Sam' , age: 21}
+// ];
 
 
 // define user data type
@@ -36,11 +37,11 @@ const RootQuery = new GraphQLObjectType({
             type: UserType,
             args:{id:{type:GraphQLString}},
             resolve(parentValue, args){
-                // lodash go through all the users and return the first user who has the id equal to args.id
-                return _.find(users, {id: args.id})
+                // make the http request , before anything happens with the promise, take the response return only response.data 
+                return axios.get(`https://localhost:3000/users/${args.id}`)
+                .then(resp => resp.data);
             }
         }
-
     }
 });
 
