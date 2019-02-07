@@ -15,6 +15,15 @@ const {
 //     { id: '47', firstName: 'Sam' , age: 21}
 // ];
 
+//define companytype, have to put it before the usertype
+const CompanyType = new GraphQLObjectType({
+    name:'Company',
+    fields: {
+        id:{type: GraphQLString},
+        name:{type: GraphQLString},
+        description:{type:GraphQLString}
+    }
+});
 
 // define user data type
 const UserType = new GraphQLObjectType({
@@ -22,7 +31,14 @@ const UserType = new GraphQLObjectType({
     fields: {
         id:{type: GraphQLString},
         firstName:{type: GraphQLString},
-        age:{type:GraphQLInt}
+        age:{type:GraphQLInt},
+        company:{
+            type:CompanyType,
+            resolve(parentValue, args){
+                return axios.get(`http://localhost:3000/companies/${parentValue.companyId}`)
+                .then(resp => resp.data);
+            }
+        }
     }
 }); 
 
@@ -38,7 +54,9 @@ const RootQuery = new GraphQLObjectType({
             args:{id:{type:GraphQLString}},
             resolve(parentValue, args){
                 // make the http request , before anything happens with the promise, take the response return only response.data 
-                return axios.get(`https://localhost:3000/users/${args.id}`)
+                // because promise, we can fetch data from anywhere, can be a third-party server, could be reading a file off the hard drive
+                // it can be a database ...etc
+                return axios.get(`http://localhost:3000/users/${args.id}`)
                 .then(resp => resp.data);
             }
         }
